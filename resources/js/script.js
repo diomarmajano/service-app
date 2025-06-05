@@ -8,7 +8,7 @@ if (loginBtn) {
         if (email === "" || password === "") {
             alert("Por favor, complete todos los campos.");
         } else if (credenciales && credenciales.email === email && credenciales.password === password) {
-            window.location.href = "/views/dashboard.html";
+            window.location.href = "/views/form.html";
         } else {
             alert("Credenciales incorrectas.");
         }
