@@ -1,13 +1,22 @@
+//Primero estoy verificando que exista el elemento, para evitar errores si el scrip se carga en una pagina donde este no exista
 const loginBtn = document.getElementById("loginButton");
 if (loginBtn) {
     loginBtn.addEventListener("click", function() {
-        const credenciales = JSON.parse(localStorage.getItem("credenciales"));
-        var email = document.getElementById("serviceName").value;
-        var password = document.getElementById("servicePassword").value;
-
+        var email = document.getElementById("loginEmail").value;
+        var password = document.getElementById("loginPassword").value;
         if (email === "" || password === "") {
             alert("Por favor, complete todos los campos.");
-        } else if (credenciales && credenciales.email === email && credenciales.password === password) {
+            return;
+        }
+        // Aca recupero la lista de usuarios, para luego comprobar las credenciales
+        const usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+        const user = usuarios.find(u => u.email === email && u.password === password);
+        if (user) {
+            // Guardar credenciales del usuario logueado
+            localStorage.setItem("credenciales", JSON.stringify({
+                email: user.email,
+                password: user.password
+            }));
             window.location.href = "/views/form.html";
         } else {
             alert("Credenciales incorrectas.");
@@ -18,11 +27,79 @@ if (loginBtn) {
 const registerBtn = document.getElementById("registerButton");
 if (registerBtn) {
     registerBtn.addEventListener("click", function() { 
-        var credenciales = {
-            email: document.getElementById("registerName").value, 
-            password: document.getElementById("registerPassword").value
+        var newUser = {
+            name: document.getElementById("name").value,
+            rol: document.getElementById("rol").value,
+            email: document.getElementById("email").value, 
+            password: document.getElementById("password").value
         };
-        localStorage.setItem("credenciales", JSON.stringify(credenciales));
+
+        let users = JSON.parse(localStorage.getItem("usuarios")) || [];
+
+        // Verificar si el email ya existe
+        const exists = users.some(user => user.email === newUser.email);
+        if (exists) {
+            alert("El correo ya está registrado.");
+            return;
+        }
+
+        // Agregar nuevo usuario
+        users.push(newUser);
+        localStorage.setItem("usuarios", JSON.stringify(users));
         alert("Registro exitoso");
+        window.location.href = "/views/login.html";
+    });
+}
+
+const usuario = document.getElementById("nombre");
+const correo = document.getElementById("correo");
+const contraseña = document.getElementById("contraseña");
+const rol = document.getElementById("rol");
+const btnguardar = document.getElementById("btnguardar");
+// Mostrar los datos solo del usuario que está logueado
+if (usuario && contraseña) {
+    const credenciales = JSON.parse(localStorage.getItem("credenciales"));
+    const usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+    if (credenciales && usuarios.length > 0) {
+        const user = usuarios.find(u => u.email === credenciales.email && u.password === credenciales.password);
+        if (user) {
+            if (user.name) usuario.value = user.name;
+            if (user.email) correo.value = user.email;
+            if (user.rol) rol.value = user.rol;
+            if (user.password) contraseña.value = user.password;
+        }
+    }
+}
+if (btnguardar) {
+    btnguardar.addEventListener("click", function() {
+        let usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+        const credenciales = JSON.parse(localStorage.getItem("credenciales"));
+
+        if (!credenciales) {
+            alert("No hay usuario logueado.");
+            return;
+        }
+        const idx = usuarios.findIndex(u => u.email === credenciales.email && u.password === credenciales.password);
+        if (idx === -1) {
+            alert("Usuario no encontrado.");
+            return;
+        }
+
+        usuarios[idx] = {
+            name: usuario.value,
+            email: correo.value,
+            password: contraseña.value,
+            rol: rol.value
+        };
+
+        // Guardar cambios en localStorage
+        localStorage.setItem("usuarios", JSON.stringify(usuarios));
+
+        localStorage.setItem("credenciales", JSON.stringify({
+            email: correo.value,
+            password: contraseña.value
+        }));
+
+        alert("Datos actualizados exitosamente");
     });
 }
