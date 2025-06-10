@@ -28,32 +28,52 @@ if (loginBtn) {
     }
   });
 }
-
 const registerBtn = document.getElementById("registerButton");
 if (registerBtn) {
-  registerBtn.addEventListener("click", function () {
-    var newUser = {
-      name: document.getElementById("name").value,
-      rol: document.getElementById("rol").value,
-      email: document.getElementById("email").value,
-      password: document.getElementById("password").value,
-    };
+    registerBtn.addEventListener("click", function () {
+        var newUser = {
+            name: document.getElementById("name").value,
+            rol: document.getElementById("rol").value,
+            email: document.getElementById("email").value,
+            password: document.getElementById("password").value,
+        };
 
-    let users = JSON.parse(localStorage.getItem("usuarios")) || [];
+        // Validar contraseña
+        const password = newUser.password;
+        const minLength = 8;
+        const maxLength = 12;
+        const hasLetter = /[a-zA-Z]/.test(password);
+        const hasNumber = /\d/.test(password);
+        const hasSpecial = /[^a-zA-Z0-9]/.test(password);
 
-    // Verificar si el email ya existe
-    const exists = users.some((user) => user.email === newUser.email);
-    if (exists) {
-      alert("El correo ya está registrado.");
-      return;
-    }
+        if (
+            password.length < minLength ||
+            password.length > maxLength ||
+            !hasLetter ||
+            !hasNumber ||
+            !hasSpecial
+        ) {
+            alert(
+                "La contraseña debe tener entre 8 y 12 caracteres, incluir letras, números y al menos un caracter especial."
+            );
+            return;
+        }
 
-    // Agregar nuevo usuario
-    users.push(newUser);
-    localStorage.setItem("usuarios", JSON.stringify(users));
-    alert("Registro exitoso");
-    window.location.href = "/views/login.html";
-  });
+        let users = JSON.parse(localStorage.getItem("usuarios")) || [];
+
+        // Verificar si el email ya existe
+        const exists = users.some((user) => user.email === newUser.email);
+        if (exists) {
+            alert("El correo ya está registrado.");
+            return;
+        }
+
+        // Agregar nuevo usuario
+        users.push(newUser);
+        localStorage.setItem("usuarios", JSON.stringify(users));
+        alert("Registro exitoso");
+        window.location.href = "/views/login.html";
+    });
 }
 
 const usuario = document.getElementById("nombre");
